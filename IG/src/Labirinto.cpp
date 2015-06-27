@@ -1,8 +1,7 @@
 #include <GL/glut.h>
 #include <time.h>
 #include <stdlib.h>
-#include <iostream>
-using namespace std;
+#include "tga.h"
 
 static int d = 0, w = 00;
 const int dimmatrix=15;
@@ -12,17 +11,40 @@ int matrix[dimmatrix][dimmatrix];
 
 int xPlayer, yPlayer;//posizione di start della camera
 
-int xTarget,yTarget,riga=0, colonna=0, valiniz=0; //coordinate matrice
+int riga=0, colonna=0, valiniz=0; //coordinate matrice
 enum dir {destra=1, sotto=2, sinistra=3, sopra=4};
 enum codir {destr=1, sinistr=2};
 
 
+
+
 void Target(int x, int y){
+
+	GLbyte *pBytes;
+	GLint iWidth, iHeight, iComponents;
+	GLenum eFormat;
+
+	pBytes = gltLoadTGA("Target.tga", &iWidth, &iHeight, &iComponents, &eFormat);
+	glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
+	free (pBytes);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//la texture si sovrappone al ccolore della geometria
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	glEnable(GL_TEXTURE_2D);
+
 	glPushMatrix();
 
-			glTranslated((y*dimgraphics)+(dimgraphics/2),(x*dimgraphics)+(dimgraphics/2),0);
+	glTranslated((y*dimgraphics)+(dimgraphics/2),(x*dimgraphics)+(dimgraphics/2),0);
 
-			glutSolidSphere(dimgraphics/2-1, 20, 20);
+	GLUquadric *quadratic = gluNewQuadric();
+	gluQuadricTexture( quadratic, true );
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, iComponents);
+	gluSphere(quadratic,dimgraphics/2,1000,1000);
 
 	glPopMatrix();
 }
@@ -44,76 +66,76 @@ void percorsoEsatto(int mat [][dimmatrix], int dim){
 	while (riga!=dim-2)//fino a quando il valore della righa non arriva all'ultima della matrice
 	{
 		if (direzione==sopra&&copiadirez==destr)
-			{
-				int ran=0;
-				ran=rand()%2+1;
-				switch (ran)
-				{
-				case(1):
-					{
-						direzione=destra;
-						break;
-					}
-				case (2):
-					{
-						direzione=sopra;
-						break;
-					}
-				}
-				if (direzione==sopra)
-					direzione=sopra;
-				else
-					direzione=destra;
-			}
-		else if (direzione==sopra&&copiadirez==sinistr)
-			{
+		{
 			int ran=0;
-				ran=rand()%2+1;
-					switch (ran)
-						{
-							case (1):
-								{
-									direzione=sinistra;
-									break;
-								}
-							case (2):
-								{
-									direzione=sopra;
-									break;
-								}
+			ran=rand()%2+1;
+			switch (ran)
+			{
+			case(1):
+							{
+				direzione=destra;
+				break;
 							}
-				if (direzione==sopra)
-					direzione=sopra;
-				else
-					direzione=sinistra;
+			case (2):
+							{
+				direzione=sopra;
+				break;
+							}
 			}
+			if (direzione==sopra)
+				direzione=sopra;
+			else
+				direzione=destra;
+		}
+		else if (direzione==sopra&&copiadirez==sinistr)
+		{
+			int ran=0;
+			ran=rand()%2+1;
+			switch (ran)
+			{
+			case (1):
+										{
+				direzione=sinistra;
+				break;
+										}
+			case (2):
+										{
+				direzione=sopra;
+				break;
+										}
+			}
+			if (direzione==sopra)
+				direzione=sopra;
+			else
+				direzione=sinistra;
+		}
 		else
 		{
 			int ran=0;
-				ran=rand()%4+1;
-					switch (ran)
-						{
-							case(1):
-								{
-									direzione=destra;
-									break;
-								}
-							case(2):
-								{
-									direzione=sotto;
-									break;
-								}
-							case (3):
-								{
-									direzione=sinistra;
-									break;
-								}
-							case (4):
-								{
-									direzione=sopra;
-									break;
-								}
-							}
+			ran=rand()%4+1;
+			switch (ran)
+			{
+			case(1):
+										{
+				direzione=destra;
+				break;
+										}
+			case(2):
+										{
+				direzione=sotto;
+				break;
+										}
+			case (3):
+										{
+				direzione=sinistra;
+				break;
+										}
+			case (4):
+										{
+				direzione=sopra;
+				break;
+										}
+			}
 		}
 
 		//inizio verifica direzioni possibili
@@ -123,13 +145,13 @@ void percorsoEsatto(int mat [][dimmatrix], int dim){
 			if (colonna>dim-3)
 				ver=false;
 			for (int i=riga-1;i<=riga+1;i++)
+			{
+				for (int j=colonna+1;j<=colonna+2;j++)
 				{
-					for (int j=colonna+1;j<=colonna+2;j++)
-					{
-						if (mat [i][j]==0)
-							ver=false;
-					}
+					if (mat [i][j]==0)
+						ver=false;
 				}
+			}
 			if (ver)
 			{
 				colonna++;
@@ -143,18 +165,18 @@ void percorsoEsatto(int mat [][dimmatrix], int dim){
 			if (riga>dim-1)
 				ver=false;
 			for (int i=colonna-1;i<=colonna+1;i++)
+			{
+				for (int j=riga+1;j<=riga+2;j++)
 				{
-					for (int j=riga+1;j<=riga+2;j++)
-					{
-						if (mat [j][i]==0)
-							ver=false;
-					}
+					if (mat [j][i]==0)
+						ver=false;
 				}
+			}
 			if (ver)
-				{
-					riga++;
-					mat [riga][colonna]=0;
-				}
+			{
+				riga++;
+				mat [riga][colonna]=0;
+			}
 		}
 		else if (direzione==sinistra)//sinistra
 		{
@@ -162,19 +184,19 @@ void percorsoEsatto(int mat [][dimmatrix], int dim){
 			if (colonna<2)
 				ver=false;
 			for (int i=riga-1;i<=riga+1;i++)
+			{
+				for (int j=colonna-2;j<=colonna-1;j++)
 				{
-					for (int j=colonna-2;j<=colonna-1;j++)
-					{
-						if (mat [i][j]==0)
-							ver=false;
-					}
+					if (mat [i][j]==0)
+						ver=false;
 				}
-				if (ver)
-					{
-						colonna--;
-						mat [riga][colonna]=0;
-						copiadirez=sinistr;
-					}
+			}
+			if (ver)
+			{
+				colonna--;
+				mat [riga][colonna]=0;
+				copiadirez=sinistr;
+			}
 		}
 		else//sopra
 		{
@@ -184,26 +206,26 @@ void percorsoEsatto(int mat [][dimmatrix], int dim){
 			if (copiadirez==destr)
 			{
 				for (int i=colonna-1;i<=colonna+3;i++)
+				{
+					for (int j=riga-2;j<=riga-1;j++)
 					{
-						for (int j=riga-2;j<=riga-1;j++)
-						{
-							if (mat[j][i]==0)
-								ver=false;
-						}
+						if (mat[j][i]==0)
+							ver=false;
 					}
+				}
 			}
 			else//sinistra
 			{
 				for (int i=colonna-3;i<=colonna+1;i++)
+				{
+					for (int j=riga-3;j<=riga-1;j++)
 					{
-						for (int j=riga-3;j<=riga-1;j++)
-							{
-								if (mat[j][i]==0)
-								ver=false;
-							}
+						if (mat[j][i]==0)
+							ver=false;
 					}
+				}
 			}
-		if (ver)
+			if (ver)
 			{
 				riga--;
 				mat[riga][colonna]=0;
@@ -213,9 +235,7 @@ void percorsoEsatto(int mat [][dimmatrix], int dim){
 	}//fine while
 
 	riga++;
-	mat [riga][colonna]=0;
-	xTarget=riga;
-	yTarget=colonna;
+	mat [riga][colonna]=2;
 }
 
 void stradeSecondarie (int mat [][dimmatrix], int dim)
@@ -231,113 +251,113 @@ void stradeSecondarie (int mat [][dimmatrix], int dim)
 				bool ciclo=false, bodestr=true, bosot=true, bosin=true, bosopr=true;
 				dir direzione=sotto;
 				while (bosopr||bodestr||bosot||bosin)//fino a che tutti i booleani delle direzioni sono falsi
-					{
+				{
 					int ran=0;
-						ran=rand()%4+1;
-							switch (ran)
-								{
-									case(1):
-										{
-											direzione=destra;
-											break;
-										}
-									case(2):
-										{
-											direzione=sotto;
-											break;
-										}
-									case (3):
-										{
-											direzione=sinistra;
-											break;
-										}
-									case (4):
-										{
-											direzione=sopra;
-											break;
-										}
-								}
-						//inizio verifica direzioni possibili
-						if (direzione==destra)//destra
+					ran=rand()%4+1;
+					switch (ran)
+					{
+					case(1):
+												{
+						direzione=destra;
+						break;
+												}
+					case(2):
+												{
+						direzione=sotto;
+						break;
+												}
+					case (3):
+												{
+						direzione=sinistra;
+						break;
+												}
+					case (4):
+												{
+						direzione=sopra;
+						break;
+												}
+					}
+					//inizio verifica direzioni possibili
+					if (direzione==destra)//destra
+					{
+						bodestr=true;
+						if (colonna>dim-3)
+							bodestr=false;
+						for (int i=riga-1;i<=riga+1;i++)
 						{
-							bodestr=true;
-							if (colonna>dim-3)
-								bodestr=false;
-							for (int i=riga-1;i<=riga+1;i++)
-								{
 
-										if (mat [i][colonna+1]==0)
-											bodestr=false;
-								}
-							if (mat [riga][colonna+2]==0)
+							if (mat [i][colonna+1]==0)
 								bodestr=false;
-							if (bodestr)
-							{
-								colonna++;
-								mat[riga][colonna]=0;
-								ciclo=true;
-							}
 						}
-						else if (direzione==sotto)//sotto
+						if (mat [riga][colonna+2]==0)
+							bodestr=false;
+						if (bodestr)
 						{
-							bosot=true;
-							if (riga>dim-3)
-								bosot=false;
-							for (int i=colonna-1;i<=colonna+1;i++)
-								{
-										if (mat [riga+1][i]==0)
-											bosot=false;
-								}
-							if (mat [riga+2][colonna]==0)
-								bosot=false;
-							if (bosot)
-								{
-									riga++;
-									mat [riga][colonna]=0;
-									ciclo=true;
-								}
+							colonna++;
+							mat[riga][colonna]=0;
+							ciclo=true;
 						}
-						else if (direzione==sinistra)//sinistra
+					}
+					else if (direzione==sotto)//sotto
+					{
+						bosot=true;
+						if (riga>dim-3)
+							bosot=false;
+						for (int i=colonna-1;i<=colonna+1;i++)
 						{
-							bosin=true;
-							if (colonna<2)
+							if (mat [riga+1][i]==0)
+								bosot=false;
+						}
+						if (mat [riga+2][colonna]==0)
+							bosot=false;
+						if (bosot)
+						{
+							riga++;
+							mat [riga][colonna]=0;
+							ciclo=true;
+						}
+					}
+					else if (direzione==sinistra)//sinistra
+					{
+						bosin=true;
+						if (colonna<2)
+							bosin=false;
+						for (int i=riga-1;i<=riga+1;i++)
+						{
+							if (mat [i][colonna-1]==0)
 								bosin=false;
-							for (int i=riga-1;i<=riga+1;i++)
-								{
-										if (mat [i][colonna-1]==0)
-											bosin=false;
-								}
-								if (mat [riga][colonna-2]==0)
-									bosin=false;
-								if (bosin)
-									{
-										colonna--;
-										mat [riga][colonna]=0;
-										ciclo=true;
-									}
 						}
-						else//sopra
+						if (mat [riga][colonna-2]==0)
+							bosin=false;
+						if (bosin)
 						{
-							bosopr=true;
-							if (riga<2||riga>dim-2||colonna<2||colonna>dim-2)
-								bosopr=false;
-
-								for (int i=colonna-1;i<=colonna+1;i++)
-									{
-											if (mat[riga-1][i]==0)
-												bosopr=false;
-									}
-								if (mat[riga-2][colonna]==0)
-									bosopr=false;
-						if (bosopr)
-							{
-								riga--;
-								mat[riga][colonna]=0;
-								ciclo=true;
-							}
+							colonna--;
+							mat [riga][colonna]=0;
+							ciclo=true;
 						}
-						//fine verifica direzioni possibili
-					if (ciclo)//se ci si Ã¨ potuti spostare in una qualsiasi direzione
+					}
+					else//sopra
+					{
+						bosopr=true;
+						if (riga<2||riga>dim-2||colonna<2||colonna>dim-2)
+							bosopr=false;
+
+						for (int i=colonna-1;i<=colonna+1;i++)
+						{
+							if (mat[riga-1][i]==0)
+								bosopr=false;
+						}
+						if (mat[riga-2][colonna]==0)
+							bosopr=false;
+						if (bosopr)
+						{
+							riga--;
+							mat[riga][colonna]=0;
+							ciclo=true;
+						}
+					}
+					//fine verifica direzioni possibili
+					if (ciclo)//se ci si è potuti spostare in una qualsiasi direzione
 					{
 						i=1;
 						j=0;
@@ -350,15 +370,25 @@ void stradeSecondarie (int mat [][dimmatrix], int dim)
 
 void InizializzaMatrice(){
 	for (int i=0;i<dimmatrix;i++)
-			{
-				for (int j=0;j<dimmatrix;j++)
-					matrix[i][j]=1;
-			}
+	{
+		for (int j=0;j<dimmatrix;j++)
+			matrix[i][j]=1;
+	}
 }
 
 
 void init(void)
 {
+
+
+
+
+	//RIMOZIONE SUPERFICI NASCOSTE
+	glEnable(GL_DEPTH_TEST);
+
+
+
+
 	glClearColor (0.0, 0.0, 0.0, 0.0);
 	glShadeModel (GL_FLAT);
 
@@ -373,20 +403,137 @@ void init(void)
 
 
 void Wall(int x, int y){
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+
+
+	GLbyte *pBytes;
+	GLint iWidth, iHeight, iComponents;
+	GLenum eFormat;
+
+	pBytes = gltLoadTGA("Stone.tga", &iWidth, &iHeight, &iComponents, &eFormat);
+	glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
+	free (pBytes);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//la texture si sovrappone al ccolore della geometria
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	glEnable(GL_TEXTURE_2D);
+
+
+
 	glPushMatrix();
 
-		glTranslated((y*dimgraphics)+(dimgraphics/2),(x*dimgraphics)+(dimgraphics/2),0);
+	glTranslated((y*dimgraphics),(x*dimgraphics),0);
 
-		glutSolidCube(dimgraphics);
+
+	glBegin(GL_QUADS);
+
+	/*
+	//face in xy plane
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0,0 ,0 );
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0, dimgraphics, 0);
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(dimgraphics, dimgraphics, 0);
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(dimgraphics, 0, 0);
+	*/
+
+	//face in yz plane
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0, 0, 0);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0, 0, dimgraphics);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(0, dimgraphics, dimgraphics);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(0, dimgraphics, 0);
+
+	//face in zx plance
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0, 0, 0  );
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(dimgraphics, 0, 0);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(dimgraphics, 0, dimgraphics);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0, 0, dimgraphics);
+
+	//|| to xy plane.
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0, 0, dimgraphics);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(dimgraphics, 0, dimgraphics);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(dimgraphics, dimgraphics, dimgraphics);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0, dimgraphics, dimgraphics);
+
+
+	//|| to yz plane
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(dimgraphics,0 ,0 );
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(dimgraphics, dimgraphics, 0);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(dimgraphics, dimgraphics, dimgraphics);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(dimgraphics, 0, dimgraphics);
+
+	//|| to zx plane
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0, dimgraphics, 0  );
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0, dimgraphics, dimgraphics);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(dimgraphics, dimgraphics, dimgraphics);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(dimgraphics, dimgraphics, 0);
+
+	glEnd();
+	glFlush();
+
+
 
 	glPopMatrix();
+
 }
+
+
+
 
 void build(){
 	for (int i=0; i<dimmatrix; i++){
 		for (int j=0; j<dimmatrix; j++){
-			if (matrix[i][j]==1)
+			if (matrix[i][j]==1){
+				glColor3f (1.0, 1.0, 1.0);
 				Wall(i,j);
+			}
+
+			else if (matrix[i][j]==2){
+				glColor3f (1.0, 1.0, 1.0);
+				Target(i,j);
+			}
+
 		}
 	}
 }
@@ -394,34 +541,62 @@ void build(){
 
 
 void Flor(){
+
+
+	GLbyte *pBytes;
+		GLint iWidth, iHeight, iComponents;
+		GLenum eFormat;
+
+		pBytes = gltLoadTGA("Floor.tga", &iWidth, &iHeight, &iComponents, &eFormat);
+		glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
+		free (pBytes);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		//la texture si sovrappone al ccolore della geometria
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+		glEnable(GL_TEXTURE_2D);
+
+
+
 	glPushMatrix();
 
-		glBegin(GL_QUADS);
+	glBegin(GL_QUADS);
 
-		glVertex3f(0,0,0);
-		glVertex3f(dimmatrix*dimgraphics,0,0);
-		glVertex3f(dimmatrix*dimgraphics,dimmatrix*dimgraphics,0);
-		glVertex3f(0,dimmatrix*dimgraphics,0);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0,0,0);
+	glTexCoord2f(10.0f, 0.0f);
+	glVertex3f(dimmatrix*dimgraphics,0,0);
+	glTexCoord2f(10.0f, 10.0f);
+	glVertex3f(dimmatrix*dimgraphics,dimmatrix*dimgraphics,0);
+	glTexCoord2f(0.0f, 10.0f);
+	glVertex3f(0,dimmatrix*dimgraphics,0);
 
-		glEnd();
+	glEnd();
 
 	glPopMatrix();
 }
 
 void display(void)
 {
-	glClear (GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glColor3f (1.0, 1.0, 1.0);
+
+
+
+
+
+
+
 
 	Flor();
 
-	glColor3f (0.0, 1.0, 1.0);
-
 	build();
 
-	glColor3f (0.0, 0.0, 1.0);
-
-	Target(xTarget,yTarget);
 
 	//posizione camera iniziale
 	//Target(xPlayer, yPlayer);
@@ -438,9 +613,7 @@ void display(void)
 			glEnd();
 		}
 	}
-	*/
-
-
+	 */
 
 	glutSwapBuffers();
 }
@@ -451,19 +624,19 @@ void reshape (int w, int h)
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity ();
-	gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, 500.0);
+	gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, 1000.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt (0.0, 0.0, 300.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt ((dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 150.0, (dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 0.0, 0.0, 1.0, 0.0);
 }
 
 void keyboard (unsigned char key, int x, int y)
 {
 	switch (key) {
 	case 'd':
-	d = (d + 10) % 360;
-	glutPostRedisplay();
-	break;
+		d = (d + 10) % 360;
+		glutPostRedisplay();
+		break;
 	case 'D':
 		d = (d - 10) % 360;
 		glutPostRedisplay();
@@ -490,7 +663,7 @@ void keyboard (unsigned char key, int x, int y)
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
+	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (500, 500);
 	glutInitWindowPosition (100, 100);
 	glutCreateWindow (argv[0]);
