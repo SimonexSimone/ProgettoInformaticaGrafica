@@ -2,8 +2,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include "tga.h"
+#include <iostream>
 
-static int d = 0, w = 00;
+using namespace std;
+
 const int dimmatrix=15;
 const int dimgraphics=10;
 int matrix[dimmatrix][dimmatrix];
@@ -14,17 +16,53 @@ int xPlayer, yPlayer;//posizione di start della camera
 int riga=0, colonna=0, valiniz=0; //coordinate matrice
 enum dir {destra=1, sotto=2, sinistra=3, sopra=4};
 enum codir {destr=1, sinistr=2};
+GLdouble eyeX=0;
+GLdouble eyeY=0;
+GLdouble Delta=0;
+GLdouble rotate=0;
+const double passo=1;
+bool endGame=false;
+string pathTexture="classicTexture";
+bool up=false, down=false, leftb=false, rightb=false;
+time_t start = time(0);
 
 
+void StampaMatrix(){
+	for (int i=0;i<dimmatrix;i++)
+		{
+			cout<<endl;
+			for (int j=0;j<dimmatrix;j++)
+				cout<<matrix[j][i]<<" ";
+		}
+}
+
+bool CanMove (GLdouble x, GLdouble y){
+	int xx=x/dimgraphics;
+	int yy=y/dimgraphics;
+	if (xx>dimmatrix || xx<0 || yy>dimmatrix || yy<0)
+		return false;
+	if (matrix[yy][xx]==1)
+		return false;
+	else if(matrix[yy][xx]==2){
+		matrix[yy][xx]=3;
+		endGame=true;
+		return false;
+	}
+	else if (matrix[yy][xx]==3)
+		return false;
+	return true;
+}
 
 
-void Target(int x, int y){
-
+void TargetQuad(int x, int y){
 	GLbyte *pBytes;
 	GLint iWidth, iHeight, iComponents;
 	GLenum eFormat;
 
-	pBytes = gltLoadTGA("Target.tga", &iWidth, &iHeight, &iComponents, &eFormat);
+	string a = pathTexture + "/Target.tga";
+	const char* file = &a[0] ;
+
+	pBytes = gltLoadTGA(file, &iWidth, &iHeight, &iComponents, &eFormat);
 	glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
 	free (pBytes);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -37,14 +75,144 @@ void Target(int x, int y){
 
 	glPushMatrix();
 
-	glTranslated((y*dimgraphics)+(dimgraphics/2),(x*dimgraphics)+(dimgraphics/2),0);
+		glTranslated((y*dimgraphics)+dimgraphics/2,(x*dimgraphics)+dimgraphics/2,0);
+		glRotated(rotate,0,0,1);
+
+		glTranslated(-dimgraphics/2+2,-dimgraphics/2+2, 2.0);
+
+		glBegin(GL_QUADS);
+
+		/*
+		//face in xy plane
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(0,0 ,0 );
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(0, dimgraphics, 0);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(dimgraphics, dimgraphics, 0);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(dimgraphics, 0, 0);
+		*/
+
+		//face in yz plane
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(0, 0, 0);
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(0, 0, dimgraphics-4);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(0, dimgraphics-4, dimgraphics-4);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(0, dimgraphics-4, 0);
+
+		//face in zx plance
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(0, 0, 0  );
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(dimgraphics-4, 0, 0);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(dimgraphics-4, 0, dimgraphics-4);
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(0, 0, dimgraphics-4);
+
+		//|| to xy plane.
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(0, 0, dimgraphics-4);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(dimgraphics-4, 0, dimgraphics-4);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(dimgraphics-4, dimgraphics-4, dimgraphics-4);
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(0, dimgraphics-4, dimgraphics-4);
+
+
+		//|| to yz plane
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(dimgraphics-4,0 ,0 );
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(dimgraphics-4, dimgraphics-4, 0);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(dimgraphics-4, dimgraphics-4, dimgraphics-4);
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(dimgraphics-4, 0, dimgraphics-4);
+
+		//|| to zx plane
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(0, dimgraphics-4, 0  );
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(0, dimgraphics-4, dimgraphics-4);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(dimgraphics-4, dimgraphics-4, dimgraphics-4);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(dimgraphics-4, dimgraphics-4, 0);
+
+
+
+
+
+		glEnd();
+		glFlush();
+
+
+
+		glPopMatrix();
+
+
+
+
+
+
+}
+
+
+void TargetSphere(int x, int y){
+
+	GLbyte *pBytes;
+	GLint iWidth, iHeight, iComponents;
+	GLenum eFormat;
+
+	string a = pathTexture + "/Target.tga";
+	const char* file = &a[0] ;
+
+	pBytes = gltLoadTGA(file, &iWidth, &iHeight, &iComponents, &eFormat);
+	glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
+	free (pBytes);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//la texture si sovrappone al ccolore della geometria
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	glEnable(GL_TEXTURE_2D);
+
+	glPushMatrix();
+
+	glTranslated((y*dimgraphics)+(dimgraphics/2),(x*dimgraphics)+(dimgraphics/2),(dimgraphics/2));
+	glRotated(rotate,0,0,1);
 
 	GLUquadric *quadratic = gluNewQuadric();
 	gluQuadricTexture( quadratic, true );
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, iComponents);
-	gluSphere(quadratic,dimgraphics/2,1000,1000);
+	gluSphere(quadratic,(dimgraphics/2)-2,100,100);
 
 	glPopMatrix();
 }
@@ -62,6 +230,8 @@ void percorsoEsatto(int mat [][dimmatrix], int dim){
 	yPlayer=colonna;
 	riga++;
 	mat [riga][colonna]=0;
+	eyeX=colonna*dimgraphics+dimgraphics/2;
+	Delta=eyeX;
 
 	while (riga!=dim-2)//fino a quando il valore della righa non arriva all'ultima della matrice
 	{
@@ -357,7 +527,7 @@ void stradeSecondarie (int mat [][dimmatrix], int dim)
 						}
 					}
 					//fine verifica direzioni possibili
-					if (ciclo)//se ci si è potuti spostare in una qualsiasi direzione
+					if (ciclo)//se ci si Ã¨ potuti spostare in una qualsiasi direzione
 					{
 						i=1;
 						j=0;
@@ -379,15 +549,8 @@ void InizializzaMatrice(){
 
 void init(void)
 {
-
-
-
-
 	//RIMOZIONE SUPERFICI NASCOSTE
 	glEnable(GL_DEPTH_TEST);
-
-
-
 
 	glClearColor (0.0, 0.0, 0.0, 0.0);
 	glShadeModel (GL_FLAT);
@@ -411,7 +574,11 @@ void Wall(int x, int y){
 	GLint iWidth, iHeight, iComponents;
 	GLenum eFormat;
 
-	pBytes = gltLoadTGA("Stone.tga", &iWidth, &iHeight, &iComponents, &eFormat);
+
+	string a = pathTexture + "/Stone.tga";
+	const char* file = &a[0] ;
+
+	pBytes = gltLoadTGA(file, &iWidth, &iHeight, &iComponents, &eFormat);
 	glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
 	free (pBytes);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -435,10 +602,13 @@ void Wall(int x, int y){
 	//face in xy plane
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0,0 ,0 );
+
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(0, dimgraphics, 0);
+
 	glTexCoord2f(1.0f, 1.0f);
 	glVertex3f(dimgraphics, dimgraphics, 0);
+
 	glTexCoord2f(1.0f, 0.0f);
 	glVertex3f(dimgraphics, 0, 0);
 	*/
@@ -531,7 +701,12 @@ void build(){
 
 			else if (matrix[i][j]==2){
 				glColor3f (1.0, 1.0, 1.0);
-				Target(i,j);
+				TargetQuad(i,j);
+			}
+
+			else if (matrix[i][j]==3){
+				glColor3f (1.0, 1.0, 1.0);
+				TargetSphere(i,j);
 			}
 
 		}
@@ -540,14 +715,17 @@ void build(){
 
 
 
-void Flor(){
+void FloorRoof(){
 
 
 	GLbyte *pBytes;
 		GLint iWidth, iHeight, iComponents;
 		GLenum eFormat;
 
-		pBytes = gltLoadTGA("Floor.tga", &iWidth, &iHeight, &iComponents, &eFormat);
+		string a = pathTexture + "/Floor.tga";
+		const char* file = &a[0] ;
+
+		pBytes = gltLoadTGA(file, &iWidth, &iHeight, &iComponents, &eFormat);
 		glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
 		free (pBytes);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -556,7 +734,7 @@ void Flor(){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		//la texture si sovrappone al ccolore della geometria
+		//la texture si sovrappone al colore della geometria
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 		glEnable(GL_TEXTURE_2D);
@@ -579,6 +757,44 @@ void Flor(){
 	glEnd();
 
 	glPopMatrix();
+
+
+	a = pathTexture + "/Roof.tga";
+	file = &a[0] ;
+
+	pBytes = gltLoadTGA(file, &iWidth, &iHeight, &iComponents, &eFormat);
+	glTexImage2D (GL_TEXTURE_2D, 0 , iComponents , iWidth, iHeight, 0,eFormat, GL_UNSIGNED_BYTE, pBytes );
+	free (pBytes);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//la texture si sovrappone al colore della geometria
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	glEnable(GL_TEXTURE_2D);
+
+
+	glPushMatrix();
+
+		glBegin(GL_QUADS);
+
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(0,0,dimgraphics);
+		glTexCoord2f(0.0f, 10.0f);
+		glVertex3f(0,dimmatrix*dimgraphics,dimgraphics);
+		glTexCoord2f(10.0f, 10.0f);
+		glVertex3f(dimmatrix*dimgraphics,dimmatrix*dimgraphics,dimgraphics);
+		glTexCoord2f(10.0f, 0.0f);
+		glVertex3f(dimmatrix*dimgraphics,0,dimgraphics);
+
+
+
+		glEnd();
+
+		glPopMatrix();
 }
 
 void display(void)
@@ -586,14 +802,7 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glColor3f (1.0, 1.0, 1.0);
 
-
-
-
-
-
-
-
-	Flor();
+	FloorRoof();
 
 	build();
 
@@ -605,17 +814,56 @@ void display(void)
 	/*
 	for (int i=0; i<dimmatrix; i++){
 		for (int j=0; j<dimmatrix; j++){
+
 			glBegin(GL_QUADS);
+
+
 			glVertex3f(dim*i,dim*j,0);
 					glVertex3f(dim*i+dim,dim*j,0);
 					glVertex3f(dim*i+dim,dim*j+dim,0);
 					glVertex3f(dim*i,dim*j+dim,0);
+
 			glEnd();
+
 		}
 	}
 	 */
 
 	glutSwapBuffers();
+
+	rotate+=10;
+	if (up){
+		if (CanMove(eyeX, eyeY+2)){
+			eyeY+=passo;
+			glTranslated(0,-passo,0);
+		}
+	}
+	else if(down){
+		if (CanMove(eyeX, eyeY-2)){
+			eyeY-=passo;
+			glTranslated(0, passo,0);
+		}
+	}
+	else if(leftb){
+		eyeX--;
+		glTranslated(1,0,0);
+		glutPostRedisplay();
+	}
+	else  if (rightb){
+		eyeX++;
+		glTranslated(-1,0,0);
+		glutPostRedisplay();
+	}
+
+	double seconds_since_start = difftime( time(0), start);
+		if (seconds_since_start==60){
+			if (!endGame)
+				endGame=true;
+		}
+
+
+	glutPostRedisplay();
+
 }
 
 
@@ -624,34 +872,21 @@ void reshape (int w, int h)
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity ();
-	gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, 1000.0);
+	gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, dimgraphics*dimmatrix+dimgraphics);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt ((dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 150.0, (dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 0.0, 0.0, 1.0, 0.0);
+
+	//visione dall'alto al centro
+	//gluLookAt ((dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 150.0, (dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 0.0, 0.0, 1.0, 0.0);
+
+
+	gluLookAt (eyeX, eyeY, dimgraphics/2, Delta, eyeY+1, dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+
 }
 
-void keyboard (unsigned char key, int x, int y)
-{
+//key pressed
+void keyboard (unsigned char key, int x, int y){
 	switch (key) {
-	case 'd':
-		d = (d + 10) % 360;
-		glutPostRedisplay();
-		break;
-	case 'D':
-		d = (d - 10) % 360;
-		glutPostRedisplay();
-		break;
-	case 'w':
-		w = (w + 10) % 360;
-		glutPostRedisplay();
-		break;
-	case 'W':
-		w = (w - 10) % 360;
-		glutPostRedisplay();
-		break;
-	case 'q':
-		glutPostRedisplay();
-		break;
 	case 27:
 		exit(0);
 		break;
@@ -660,19 +895,67 @@ void keyboard (unsigned char key, int x, int y)
 	}
 }
 
+//key released
+void keyBoardUp( int key, int x, int y ){
+	switch( key ) {
+	case GLUT_KEY_UP:
+		up = false;
+		break;
+	case GLUT_KEY_DOWN:
+		down=false;
+		break;
+	case GLUT_KEY_LEFT:
+		leftb=false;
+		break;
+	case GLUT_KEY_RIGHT:
+		rightb=false;
+		break;
+	default:
+		break;
+	}
+}
+
+//special-key pressed
+void specialKeyboard (int key, int x, int y)
+{
+	if (!endGame){
+	switch (key) {
+	case GLUT_KEY_UP:
+		up=true;
+		break;
+	case GLUT_KEY_DOWN:
+		down=true;
+		break;
+	case GLUT_KEY_LEFT:
+		leftb=true;
+		break;
+	case GLUT_KEY_RIGHT:
+		rightb=true;
+		break;
+	default:
+		break;
+	}
+}
+}
+
+
 int main(int argc, char** argv)
 {
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (500, 500);
-	glutInitWindowPosition (100, 100);
+	glutInitWindowSize (1000, 700);
+	glutInitWindowPosition (200, 0);
 	glutCreateWindow (argv[0]);
 	init ();
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
+	glutSpecialUpFunc(keyBoardUp);
+	glutSpecialFunc(specialKeyboard);
 
 	glutMainLoop();
 	return 0;
 }
+
