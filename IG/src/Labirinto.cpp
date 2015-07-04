@@ -37,11 +37,13 @@ void StampaMatrix(){
 		}
 }
 
+
+
+
+
 bool CanMove (GLdouble x, GLdouble y){
 	int xx=x/dimgraphics;
 	int yy=y/dimgraphics;
-	if (xx>dimmatrix || xx<0 || yy>dimmatrix || yy<0)
-		return false;
 	if (matrix[yy][xx]==1)
 		return false;
 	else if(matrix[yy][xx]==2){
@@ -52,6 +54,19 @@ bool CanMove (GLdouble x, GLdouble y){
 	else if (matrix[yy][xx]==3)
 		return false;
 	return true;
+}
+
+
+bool can3move(GLdouble x, GLdouble y){
+	if (!CanMove(x,y))
+		return false;
+	x=x+sin(angolo)*2.4;
+	y=y+cos(angolo)*2.4;
+	if (x<0 || y<0)
+		return false;
+	if (CanMove(x+sin(angolo+90)*2,y+cos(angolo+90)*2)&&CanMove(x+sin(angolo-90)*2,y+cos(angolo-90)*2))
+		return true;
+	return false;
 }
 
 
@@ -830,7 +845,7 @@ void display(void)
 	if (up){
 		eyeX+=sin(angolo);
 		eyeY+=cos(angolo);
-		if (CanMove(eyeX, eyeY)){
+		if (can3move(eyeX, eyeY)){
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -847,7 +862,7 @@ void display(void)
 	else if(down){
 		eyeX-=sin(angolo);
 		eyeY-=cos(angolo);
-		if (CanMove(eyeX, eyeY-1)){
+		if (can3move(eyeX, eyeY)){
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -861,15 +876,23 @@ void display(void)
 	}
 	else if(leftb){
 		angolo-=0.1;
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+		if (can3move(eyeX, eyeY)){
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+		}
+		else
+			angolo+=0.1;
 	}
 	else  if (rightb){
 		angolo+=0.1;
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+		if (can3move(eyeX, eyeY)){
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+		}
+		else
+			angolo-=0.1;
 	}
 
 
@@ -981,4 +1004,3 @@ int main(int argc, char** argv)
 	glutMainLoop();
 	return 0;
 }
-
