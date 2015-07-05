@@ -37,10 +37,6 @@ void StampaMatrix(){
 		}
 }
 
-
-
-
-
 bool CanMove (GLdouble x, GLdouble y){
 	int xx=x/dimgraphics;
 	int yy=y/dimgraphics;
@@ -60,8 +56,8 @@ bool CanMove (GLdouble x, GLdouble y){
 bool can3move(GLdouble x, GLdouble y){
 	if (!CanMove(x,y))
 		return false;
-	x=x+sin(angolo)*2.4;
-	y=y+cos(angolo)*2.4;
+	x=x+sin(angolo)*3.4;
+	y=y+cos(angolo)*3.4;
 	if (x<0 || y<0)
 		return false;
 	if (CanMove(x+sin(angolo+90)*2,y+cos(angolo+90)*2)&&CanMove(x+sin(angolo-90)*2,y+cos(angolo-90)*2))
@@ -841,65 +837,62 @@ void display(void)
 
 	rotate+=10;
 
-
-	if (up){
-		eyeX+=sin(angolo);
-		eyeY+=cos(angolo);
-		if (can3move(eyeX, eyeY)){
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
-		}
-		else{
-			eyeX-=sin(angolo);
-			eyeY-=cos(angolo);
-		}
-
-
-
-	}
-	else if(down){
-		eyeX-=sin(angolo);
-		eyeY-=cos(angolo);
-		if (can3move(eyeX, eyeY)){
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
-		}
-		else{
+	if (!endGame){
+		if (up){
 			eyeX+=sin(angolo);
 			eyeY+=cos(angolo);
+			if (can3move(eyeX, eyeY)){
+
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+			}
+			else{
+				eyeX-=sin(angolo);
+				eyeY-=cos(angolo);
+			}
 		}
 
-	}
-	else if(leftb){
-		angolo-=0.1;
-		if (can3move(eyeX, eyeY)){
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+		if(down){
+			eyeX-=sin(angolo);
+			eyeY-=cos(angolo);
+			if (can3move(eyeX, eyeY)){
+
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+			}
+			else{
+				eyeX+=sin(angolo);
+				eyeY+=cos(angolo);
+			}
+
 		}
-		else
-			angolo+=0.1;
-	}
-	else  if (rightb){
-		angolo+=0.1;
-		if (can3move(eyeX, eyeY)){
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
-		}
-		else
+		if(leftb){
 			angolo-=0.1;
+			if (can3move(eyeX, eyeY)){
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+			}
+			else
+				angolo+=0.1;
+		}
+		if (rightb){
+			angolo+=0.1;
+			if (can3move(eyeX, eyeY)){
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+			}
+			else
+				angolo-=0.1;
+		}
 	}
-
 
 	glutPostRedisplay();
 
 }
-
 
 void reshape (int w, int h)
 {
@@ -910,10 +903,8 @@ void reshape (int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	//visione dall'alto al centro
-	gluLookAt ((dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 150.0, (dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 0.0, 0.0, 1.0, 0.0);
 
-	//gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX, eyeY+1, dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+	gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
 
 }
 
@@ -923,17 +914,28 @@ void keyboard (unsigned char key, int x, int y){
 	case 27:
 		exit(0);
 		break;
-	case 'c':
+	case '1':
 		pathTexture="classicTexture";
 		build();
 		break;
-	case 'f':
+	case '2':
 		pathTexture="futureTexture";
 		build();
 		break;
-	case 'v':
+	case '3':
 		pathTexture="futureStaticTexture";
 		build();
+		break;
+	case 'v':
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		//visione dall'alto al centro
+		gluLookAt ((dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 150.0, (dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 0.0, 0.0, 1.0, 0.0);
+		break;
+	case 'c':
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
 		break;
 	default:
 		break;
@@ -963,7 +965,7 @@ void keyBoardUp( int key, int x, int y ){
 //special-key pressed
 void specialKeyboard (int key, int x, int y)
 {
-	if (!endGame){
+
 	switch (key) {
 	case GLUT_KEY_UP:
 		up=true;
@@ -980,7 +982,6 @@ void specialKeyboard (int key, int x, int y)
 	default:
 		break;
 	}
-}
 }
 
 
