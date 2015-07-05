@@ -27,7 +27,6 @@ bool up=false, down=false, leftb=false, rightb=false;
 time_t start = time(0);
 double angolo=0;
 
-
 void StampaMatrix(){
 	for (int i=0;i<dimmatrix;i++)
 		{
@@ -56,11 +55,16 @@ bool CanMove (GLdouble x, GLdouble y){
 bool can3move(GLdouble x, GLdouble y){
 	if (!CanMove(x,y))
 		return false;
-	x=x+sin(angolo)*3.4;
-	y=y+cos(angolo)*3.4;
+	x=x+sin(angolo)*1.7;
+	y=y+cos(angolo)*1.7;
+	if(!CanMove(x+sin(angolo+90)*1.5,y+cos(angolo+90)*1.5)||!CanMove(x+sin(angolo-90)*1.5,y+cos(angolo-90)*1.5)){
+		return false;
+	}
+	x=x+sin(angolo)*1.7;
+	y=y+cos(angolo)*1.7;
 	if (x<0 || y<0)
 		return false;
-	if (CanMove(x+sin(angolo+90)*2,y+cos(angolo+90)*2)&&CanMove(x+sin(angolo-90)*2,y+cos(angolo-90)*2))
+	if (CanMove(x,y)&&CanMove(x+sin(angolo+90)*2,y+cos(angolo+90)*2)&&CanMove(x+sin(angolo-90)*2,y+cos(angolo-90)*2))
 		return true;
 	return false;
 }
@@ -965,7 +969,6 @@ void keyBoardUp( int key, int x, int y ){
 //special-key pressed
 void specialKeyboard (int key, int x, int y)
 {
-
 	switch (key) {
 	case GLUT_KEY_UP:
 		up=true;
@@ -979,9 +982,13 @@ void specialKeyboard (int key, int x, int y)
 	case GLUT_KEY_RIGHT:
 		rightb=true;
 		break;
+	case 110:
+		cout<<"SIIIII";
+		break;
 	default:
 		break;
 	}
+
 }
 
 
