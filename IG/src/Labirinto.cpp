@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 const int dimmatrix=15;
 const int dimgraphics=10;
 int matrix[dimmatrix][dimmatrix];
@@ -26,6 +27,7 @@ string pathTexture="futureTexture";
 bool up=false, down=false, leftb=false, rightb=false;
 time_t start = time(0);
 double angolo=0;
+
 
 void StampaMatrix(){
 	for (int i=0;i<dimmatrix;i++)
@@ -85,7 +87,10 @@ void TargetQuad(int x, int y){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//la texture si sovrappone al ccolore della geometria
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+		if (pathTexture!="futureTexture")
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		else
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -179,21 +184,10 @@ void TargetQuad(int x, int y){
 		glTexCoord2f(1.0f, 0.0f);
 		glVertex3f(dimgraphics-4, dimgraphics-4, 0);
 
-
-
-
-
 		glEnd();
 		glFlush();
 
-
-
 		glPopMatrix();
-
-
-
-
-
 
 }
 
@@ -214,7 +208,10 @@ void TargetSphere(int x, int y){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//la texture si sovrappone al ccolore della geometria
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+		if (pathTexture!="futureTexture")
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		else
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -581,9 +578,6 @@ void init(void)
 
 
 void Wall(int x, int y){
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
-
 
 	GLbyte *pBytes;
 	GLint iWidth, iHeight, iComponents;
@@ -600,7 +594,10 @@ void Wall(int x, int y){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//la texture si sovrappone al ccolore della geometria
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	if (pathTexture!="futureTexture")
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	else
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -654,7 +651,7 @@ void Wall(int x, int y){
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(0, 0, dimgraphics);
 
-	//|| to xy plane.
+	//|| to xy plane.futureTexture
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0, 0, dimgraphics);
 
@@ -704,8 +701,6 @@ void Wall(int x, int y){
 }
 
 
-
-
 void build(){
 	for (int i=0; i<dimmatrix; i++){
 		for (int j=0; j<dimmatrix; j++){
@@ -746,8 +741,11 @@ void FloorRoof(){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		//la texture si sovrappone al colore della geometria
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+		//la texture si sovrappone al ccolore della geometria
+			if (pathTexture!="futureTexture")
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			else
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 		glEnable(GL_TEXTURE_2D);
 
@@ -783,8 +781,11 @@ void FloorRoof(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	//la texture si sovrappone al colore della geometria
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	//la texture si sovrappone al ccolore della geometria
+		if (pathTexture!="futureTexture")
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		else
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -807,14 +808,114 @@ void FloorRoof(){
 		glPopMatrix();
 }
 
+void Key(){
+	if (!endGame){
+			if (up){
+				eyeX+=sin(angolo);
+				eyeY+=cos(angolo);
+				if (can3move(eyeX, eyeY)){
+
+					glMatrixMode(GL_MODELVIEW);
+					glLoadIdentity();
+					gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+				}
+				else{
+					eyeX-=sin(angolo);
+					eyeY-=cos(angolo);
+				}
+			}
+
+			if(down){
+				eyeX-=sin(angolo);
+				eyeY-=cos(angolo);
+				if (can3move(eyeX, eyeY)){
+
+					glMatrixMode(GL_MODELVIEW);
+					glLoadIdentity();
+					gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+				}
+				else{
+					eyeX+=sin(angolo);
+					eyeY+=cos(angolo);
+				}
+
+			}
+			if(leftb){
+				angolo-=0.1;
+				if (can3move(eyeX, eyeY)){
+					glMatrixMode(GL_MODELVIEW);
+					glLoadIdentity();
+					gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+				}
+				else
+					angolo+=0.1;
+			}
+			if (rightb){
+				angolo+=0.1;
+				if (can3move(eyeX, eyeY)){
+					glMatrixMode(GL_MODELVIEW);
+					glLoadIdentity();
+					gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
+				}
+				else
+					angolo-=0.1;
+			}
+		}
+}
+
 void display(void)
 {
 
-	double seconds_since_start = difftime( time(0), start);
+	time_t seconds_since_start = difftime( time(0), start);
 	if (seconds_since_start>=60){
 		if (!endGame)
 			endGame=true;
 	}
+
+
+
+//	if(seconds_since_start>=65)
+//		exit(0);
+
+
+
+	//luci
+		if (pathTexture!="futureTexture"){
+
+		glShadeModel(GL_SMOOTH);
+
+		// L i g h t v a l u e s and c o o r d i n a t e s
+		GLfloat ambientLight [] = { 0.3f , 0.3f , 0.3f , 1.0f };
+		GLfloat diffuseLight [] = { 0.7f , 0.7f , 0.7f , 1.0f };
+
+
+		// Enable l i g h t i n g
+		glEnable ( GL_LIGHTING ) ;
+		// Setup and enable l i g h t 0
+		glLightfv ( GL_LIGHT0 , GL_AMBIENT , ambientLight ) ;
+		glLightfv ( GL_LIGHT0 , GL_DIFFUSE , diffuseLight ) ;
+		glEnable ( GL_LIGHT0 ) ;
+		// Enable c o l o r t r a c k i n g
+		glEnable (GL_COLOR_MATERIAL) ;
+		// Set M a t e r i a l p r o p e r t i e s t o f o l l o w g l C o l o r v a l u e s
+		glColorMaterial (GL_FRONT, GL_AMBIENT_AND_DIFFUSE ) ;
+
+		GLfloat lightPos [] = { -200.0f , 200.0f , 7.0f , 1.0f };
+//		GLfloat lightPos [] = { 75.0f , 75.0f , 50.0f , 1.0f };
+		glLightfv ( GL_LIGHT0 , GL_POSITION , lightPos );
+
+
+
+
+
+
+		}
+		else
+			glDisable(GL_LIGHTING);
+		//end luci
+
+
+
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -841,58 +942,8 @@ void display(void)
 
 	rotate+=10;
 
-	if (!endGame){
-		if (up){
-			eyeX+=sin(angolo);
-			eyeY+=cos(angolo);
-			if (can3move(eyeX, eyeY)){
+	Key();
 
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
-				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
-			}
-			else{
-				eyeX-=sin(angolo);
-				eyeY-=cos(angolo);
-			}
-		}
-
-		if(down){
-			eyeX-=sin(angolo);
-			eyeY-=cos(angolo);
-			if (can3move(eyeX, eyeY)){
-
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
-				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
-			}
-			else{
-				eyeX+=sin(angolo);
-				eyeY+=cos(angolo);
-			}
-
-		}
-		if(leftb){
-			angolo-=0.1;
-			if (can3move(eyeX, eyeY)){
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
-				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
-			}
-			else
-				angolo+=0.1;
-		}
-		if (rightb){
-			angolo+=0.1;
-			if (can3move(eyeX, eyeY)){
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
-				gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
-			}
-			else
-				angolo-=0.1;
-		}
-	}
 
 	glutPostRedisplay();
 
@@ -900,14 +951,15 @@ void display(void)
 
 void reshape (int w, int h)
 {
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+
 	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity ();
 	gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, dimgraphics*dimmatrix+dimgraphics);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
-
 	gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
 
 }
@@ -923,11 +975,11 @@ void keyboard (unsigned char key, int x, int y){
 		build();
 		break;
 	case '2':
-		pathTexture="futureTexture";
+		pathTexture="classic";
 		build();
 		break;
 	case '3':
-		pathTexture="futureStaticTexture";
+		pathTexture="futureTexture";
 		build();
 		break;
 	case 'v':
@@ -982,9 +1034,6 @@ void specialKeyboard (int key, int x, int y)
 	case GLUT_KEY_RIGHT:
 		rightb=true;
 		break;
-	case 110:
-		cout<<"SIIIII";
-		break;
 	default:
 		break;
 	}
@@ -995,20 +1044,21 @@ void specialKeyboard (int key, int x, int y)
 int main(int argc, char** argv)
 {
 
-
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (1280, 700);
 	glutInitWindowPosition (75, 0);
 	glutCreateWindow (argv[0]);
 	init ();
-
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutSpecialUpFunc(keyBoardUp);
 	glutSpecialFunc(specialKeyboard);
 
+
 	glutMainLoop();
+
 	return 0;
+
 }
