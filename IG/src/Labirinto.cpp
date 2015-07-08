@@ -78,15 +78,14 @@ bool can3move(GLdouble x, GLdouble y){
 void TargetQuad(int x, int y){
 
 	GLTVector3 vNormal;
-		GLTVector3 vCorners[8] = { { 0.0f, 0.0f, 0.0f },    //bl
-		                              { 1.0f, 0.0f, 0.0f },    //br
-		                              { 1.0f, 1.0f, 0.0f },   //fl
-		                              { 0.0f, 1.0f, 0.0f },     //fr
-									  { 0.0f, 0.0f, 1.0f },    //bl^
-									  { 1.0f, 0.0f, 1.0f },   //br^
-									  { 1.0f, 1.0f, 1.0f },  //fl^
-									  { 0.0f, 1.0f, 1.0f }};    //fr^
-
+	GLTVector3 vCorners[8] = { { 0.0f, 0.0f, 0.0f },    //bl
+								  { 1.0f, 0.0f, 0.0f },    //br
+								  { 1.0f, 1.0f, 0.0f },   //fl
+								  { 0.0f, 1.0f, 0.0f },     //fr
+								  { 0.0f, 0.0f, 1.0f },    //bl^
+								  { 1.0f, 0.0f, 1.0f },   //br^
+								  { 1.0f, 1.0f, 1.0f },  //fl^
+								  { 0.0f, 1.0f, 1.0f }};    //fr^
 
 	GLbyte *pBytes;
 	GLint iWidth, iHeight, iComponents;
@@ -136,7 +135,7 @@ void TargetQuad(int x, int y){
 		//face in yz plane
 
 		gltGetNormalVector(vCorners[3], vCorners[0], vCorners[4], vNormal);
-					glNormal3fv(vNormal);
+		glNormal3fv(vNormal);
 
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(0, 0, 0);
@@ -153,7 +152,7 @@ void TargetQuad(int x, int y){
 		//face in zx plance
 
 		gltGetNormalVector(vCorners[0], vCorners[1], vCorners[4], vNormal);
-					glNormal3fv(vNormal);
+		glNormal3fv(vNormal);
 
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(0, 0, 0  );
@@ -170,7 +169,7 @@ void TargetQuad(int x, int y){
 		//|| to xy plane.
 
 		gltGetNormalVector(vCorners[4], vCorners[5], vCorners[6], vNormal);
-					glNormal3fv(vNormal);
+		glNormal3fv(vNormal);
 
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(0, 0, dimgraphics-4);
@@ -188,7 +187,7 @@ void TargetQuad(int x, int y){
 		//|| to yz plane
 
 		gltGetNormalVector(vCorners[1], vCorners[2], vCorners[6], vNormal);
-					glNormal3fv(vNormal);
+		glNormal3fv(vNormal);
 
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(dimgraphics-4,0 ,0 );
@@ -205,7 +204,7 @@ void TargetQuad(int x, int y){
 		//|| to zx plane
 
 		gltGetNormalVector(vCorners[2], vCorners[3], vCorners[7], vNormal);
-					glNormal3fv(vNormal);
+		glNormal3fv(vNormal);
 
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(0, dimgraphics-4, 0  );
@@ -242,10 +241,10 @@ void TargetSphere(int x, int y){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	//la texture si sovrappone al ccolore della geometria
 		if (pathTexture!="futureTexture")
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		else
+			//la texture si sovrappone al ccolore della geometria
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	glEnable(GL_TEXTURE_2D);
@@ -600,7 +599,7 @@ void init(void)
 	glEnable(GL_DEPTH_TEST);
 
 	glClearColor (0.0, 0.0, 0.0, 0.0);
-	glShadeModel (GL_FLAT);
+	glShadeModel (GL_SMOOTH);
 
 	InizializzaMatrice();
 
@@ -623,8 +622,7 @@ void Wall(int x, int y){
 								  { 0.0f, 0.0f, 1.0f },    //bl^
 								  { 1.0f, 0.0f, 1.0f },   //br^
 								  { 1.0f, 1.0f, 1.0f },  //fl^
-								  { 0.0f, 1.0f, 1.0f }
-								  };    //fr^
+								  { 0.0f, 1.0f, 1.0f }};    //fr^
 
 	GLbyte *pBytes;
 	GLint iWidth, iHeight, iComponents;
@@ -647,7 +645,6 @@ void Wall(int x, int y){
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	glEnable(GL_TEXTURE_2D);
-
 
 
 	glPushMatrix();
@@ -676,7 +673,7 @@ void Wall(int x, int y){
 	//face in yz plane
 
 	gltGetNormalVector(vCorners[3], vCorners[0], vCorners[4], vNormal);
-			glNormal3fv(vNormal);
+	glNormal3fv(vNormal);
 
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0, 0, 0);
@@ -691,9 +688,6 @@ void Wall(int x, int y){
 	glVertex3f(0, dimgraphics, 0);
 
 	//face in zx plance
-
-	gltGetNormalVector(vCorners[0], vCorners[1], vCorners[4], vNormal);
-			glNormal3fv(vNormal);
 
 	gltGetNormalVector(vCorners[0], vCorners[1], vCorners[4], vNormal);
 	glNormal3fv(vNormal);
@@ -713,7 +707,7 @@ void Wall(int x, int y){
 	//|| to xy plane.futureTexture
 
 	gltGetNormalVector(vCorners[4], vCorners[5], vCorners[6], vNormal);
-			glNormal3fv(vNormal);
+	glNormal3fv(vNormal);
 
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0, 0, dimgraphics);
@@ -727,11 +721,10 @@ void Wall(int x, int y){
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(0, dimgraphics, dimgraphics);
 
-
 	//|| to yz plane
 
 	gltGetNormalVector(vCorners[1], vCorners[2], vCorners[6], vNormal);
-			glNormal3fv(vNormal);
+	glNormal3fv(vNormal);
 
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(dimgraphics,0 ,0 );
@@ -748,7 +741,7 @@ void Wall(int x, int y){
 	//|| to zx plane
 
 	gltGetNormalVector(vCorners[2], vCorners[3], vCorners[7], vNormal);
-			glNormal3fv(vNormal);
+	glNormal3fv(vNormal);
 
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0, dimgraphics, 0  );
@@ -764,8 +757,6 @@ void Wall(int x, int y){
 
 	glEnd();
 	glFlush();
-
-
 
 	glPopMatrix();
 
@@ -792,18 +783,17 @@ void build(){
 }
 
 
-
 void FloorRoof(){
 
 	GLTVector3 vNormal;
-			GLTVector3 vCorners[8] = { { 0.0f, 0.0f, 0.0f },    //bl
-			                              { 1.0f, 0.0f, 0.0f },    //br
-			                              { 1.0f, 1.0f, 0.0f },   //fl
-			                              { 0.0f, 1.0f, 0.0f },     //fr
-										  { 0.0f, 0.0f, 1.0f },    //bl^
-										  { 1.0f, 0.0f, 1.0f },   //br^
-										  { 1.0f, 1.0f, 1.0f },  //fl^
-										  { 0.0f, 1.0f, 1.0f }};    //fr^
+	GLTVector3 vCorners[8] = { { 0.0f, 0.0f, 0.0f },    //bl
+								  { 1.0f, 0.0f, 0.0f },    //br
+								  { 1.0f, 1.0f, 0.0f },   //fl
+								  { 0.0f, 1.0f, 0.0f },     //fr
+								  { 0.0f, 0.0f, 1.0f },    //bl^
+								  { 1.0f, 0.0f, 1.0f },   //br^
+								  { 1.0f, 1.0f, 1.0f },  //fl^
+								  { 0.0f, 1.0f, 1.0f }};    //fr^
 
 	GLbyte *pBytes;
 		GLint iWidth, iHeight, iComponents;
@@ -829,13 +819,12 @@ void FloorRoof(){
 
 		glEnable(GL_TEXTURE_2D);
 
-
 	glPushMatrix();
 
 	glBegin(GL_QUADS);
 
 	gltGetNormalVector(vCorners[0], vCorners[1], vCorners[2], vNormal);
-						glNormal3fv(vNormal);
+	glNormal3fv(vNormal);
 
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(0,0,0);
@@ -850,7 +839,6 @@ void FloorRoof(){
 
 	glPopMatrix();
 
-
 	a = pathTexture + "/Roof.tga";
 	file = &a[0] ;
 
@@ -863,8 +851,9 @@ void FloorRoof(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	//la texture si sovrappone al colore della geometria
+
 		if (pathTexture!="futureTexture")
+			//la texture si sovrappone al colore della geometria
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		else
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
@@ -877,7 +866,7 @@ void FloorRoof(){
 		glBegin(GL_QUADS);
 
 		gltGetNormalVector(vCorners[2], vCorners[1], vCorners[0], vNormal);
-							glNormal3fv(vNormal);
+		glNormal3fv(vNormal);
 
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex3f(0,0,dimgraphics);
@@ -957,50 +946,41 @@ void display(void)
 			endGame=true;
 	}
 
-
-
-//	if(seconds_since_start>=65)
-//		exit(0);
-
-
-
 	//luci
 		if (pathTexture!="futureTexture"){
 
 		glShadeModel(GL_SMOOTH);
 
-		// L i g h t v a l u e s and c o o r d i n a t e s
 		GLfloat ambientLight [] = { 0.3f , 0.3f , 0.3f , 1.0f };
 		GLfloat diffuseLight [] = { 0.5f , 0.5f , 0.5f , 1.0f };
+		GLfloat specularLight[] = { 0.2f, 0.2f, 0.2f, 1.0f};
 
-
-		// Enable l i g h t i n g
 		glEnable ( GL_LIGHTING ) ;
-		// Setup and enable l i g h t 0
-		glLightfv ( GL_LIGHT0 , GL_AMBIENT , ambientLight ) ;
-		glLightfv ( GL_LIGHT0 , GL_DIFFUSE , diffuseLight ) ;
-		glEnable ( GL_LIGHT0 ) ;
-		// Enable c o l o r t r a c k i n g
-		glEnable (GL_COLOR_MATERIAL) ;
-		// Set M a t e r i a l p r o p e r t i e s t o f o l l o w g l C o l o r v a l u e s
-		glColorMaterial (GL_FRONT, GL_AMBIENT_AND_DIFFUSE ) ;
 
-		GLfloat lightPos [] = { -10.0f , -10.0f , 0.5f , 0.0f };
-//		GLfloat lightPos [] = { 75.0f , 75.0f , 50.0f , 1.0f };
+		glLightfv ( GL_LIGHT0 , GL_AMBIENT , ambientLight);
+		glLightfv ( GL_LIGHT0 , GL_DIFFUSE , diffuseLight);
+		glLightfv( GL_LIGHT0 , GL_SPECULAR, specularLight);
+
+
+		glEnable (GL_COLOR_MATERIAL);
+
+		glMaterialfv(GL_FRONT, GL_SPECULAR, specularLight);
+
+		glColorMaterial (GL_FRONT, GL_AMBIENT_AND_DIFFUSE );
+
+		GLfloat lightPos [] = { -10.0f , -10.0f , 5.0f , 1.0f };
+
 		glLightfv ( GL_LIGHT0 , GL_POSITION , lightPos );
 
+		GLint low_shininess=64;
+		glMateriali(GL_FRONT, GL_SHININESS, low_shininess);
 
-
-
-
+		glEnable ( GL_LIGHT0 ) ;
 
 		}
 		else
 			glDisable(GL_LIGHTING);
 		//end luci
-
-
-
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -1029,7 +1009,6 @@ void display(void)
 
 	Key();
 
-
 	glutPostRedisplay();
 
 }
@@ -1056,16 +1035,25 @@ void keyboard (unsigned char key, int x, int y){
 		exit(0);
 		break;
 	case '1':
-		pathTexture="classicTexture";
-		build();
+		if (pathTexture!="classicTexture")
+		{
+			pathTexture="classicTexture";
+			build();
+		}
 		break;
 	case '2':
+		if (pathTexture!="classic")
+		{
 		pathTexture="classic";
 		build();
+		}
 		break;
 	case '3':
+		if (pathTexture!="futureTexture")
+		{
 		pathTexture="futureTexture";
 		build();
+		}
 		break;
 	case 'v':
 		glMatrixMode(GL_MODELVIEW);
@@ -1079,11 +1067,11 @@ void keyboard (unsigned char key, int x, int y){
 		gluLookAt (eyeX, eyeY, dimgraphics/2, eyeX+sin(angolo), eyeY+cos(angolo), dimgraphics/2-0.001, 0.0, 0.0, 1.0);
 		break;
 	case 'V':
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			//visione dall'alto al centro
-			gluLookAt ((dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 150.0, (dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 0.0, 0.0, 1.0, 0.0);
-			break;
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		//visione dall'alto al centro
+		gluLookAt ((dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 150.0, (dimgraphics*dimmatrix)/2, (dimgraphics*dimmatrix)/2, 0.0, 0.0, 1.0, 0.0);
+		break;
 	case 'C':
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -1139,7 +1127,6 @@ void specialKeyboard (int key, int x, int y)
 
 int main(int argc, char** argv)
 {
-
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (1280, 700);
@@ -1152,10 +1139,7 @@ int main(int argc, char** argv)
 	glutSpecialUpFunc(keyBoardUp);
 	glutSpecialFunc(specialKeyboard);
 
-
-
 	glutMainLoop();
 
 	return 0;
-
 }
